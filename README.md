@@ -18,10 +18,12 @@ For this assignment I have divided the implementation into 3 sections. First wil
 		1. create private repo in AWS ECR
 		2. create an image from a `dockerfile` and push it to the repo
 		3. run terraform to deploy the network infrastructure
-		4. run terraform to deploy the web-server infrastructure (will have to attach the key.pub in the github repo)
+		4. run terraform to deploy the web-server infrastructure (will have to attach the key.pub in the github repo) This key will be used for the EC2 instance. And will be helpful to connect to it for testing and ensuring everything is working in the cloud.
+		5. Will setup the ports in ubuntu vm, will ensure that the required ports are open from there as well.
+		6. will ensure these ports are mapped from the containers to the vm (host) as well.
 
 >[!NOTE]
->Will ensure all images creations mapped the opens ports required.
+>Will ensure all containers created and mapped the ports required. And all containers are within a specific user-defined network brdige.
 
 ### Topology
 ![](./screenshots/Pasted%20image%2020250127110953.png)
