@@ -3,36 +3,36 @@ provider "aws" {
 }
 
 # VPC
-resource "aws_vpc" "main" {
+resource "aws_vpc" "vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
   tags = {
-    Name = "main-vpc"
+    Name = "vpc"
   }
 }
 
-# Internet Gateway
+# IGW
 resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.vpc.id
   tags = {
-    Name = "main-igw"
+    Name = "igw"
   }
 }
 
 # Subnet
-resource "aws_subnet" "main" {
-  vpc_id                  = aws_vpc.main.id
+resource "aws_subnet" "subnet" {
+  vpc_id                  = aws_vpc.vpc.id
   cidr_block              = "10.0.0.0/24"
-  map_public_ip_on_launch = true # Ensure public ip on any ec2 instance launch.
+  map_public_ip_on_launch = true 
   tags = {
     Name = "public-subnet"
   }
 }
 
-# Create Route Table and Associate it with Subnet
-resource "aws_route_table" "main" {
-  vpc_id = aws_vpc.main.id
+# Route Table
+resource "aws_route_table" "route_table" {
+  vpc_id = aws_vpc.vpc.id
   tags = {
     Name = "public-route-table"
   }
@@ -43,16 +43,16 @@ resource "aws_route_table" "main" {
   }
 }
 
-resource "aws_route_table_association" "main" {
-  subnet_id      = aws_subnet.main.id
-  route_table_id = aws_route_table.main.id
+resource "aws_route_table_association" "subnet_association" {
+  subnet_id      = aws_subnet.subnet.id
+  route_table_id = aws_route_table.route_table.id
 }
 
 # Security Group
 resource "aws_security_group" "ec2_sg" {
   name        = "ec2-sg"
   description = "Allow SSH and custom ports"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.vpc.id
 
   ingress {
     from_port   = 22
@@ -62,9 +62,8 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   ingress {
-	# This will open the following ports (8080, 8081, 8082)
-    from_port   = 8080
-    to_port     = 8082
+    from_port   = 8081
+    to_port     = 8083
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -81,15 +80,31 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-# Launch EC2 Instance
+# Key Pair
+resource "aws_key_pair" "key" {
+  key_name   = "ec2-key"
+  public_key = file("~/.ssh/ec2key.pub")
+}
+
+# EC2 
 resource "aws_instance" "web" {
-  ami           = "ami-0dba2cb6798deb6d8"  # Ubuntu AMI; change to your preferred version/region
-  instance_type = "t2.micro"  # Adjust as needed
-  subnet_id     = aws_subnet.main.id
-  security_groups = [aws_security_group.ec2_sg.name]
+  ami             = "ami-0dba2cb6798deb6d8"
+  instance_type   = "t2.micro"
+  subnet_id       = aws_subnet.subnet.id
+  key_name        = aws_key_pair.key.key_name
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo yum update -y
+    sudo yum install -y docker
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo usermod -aG docker ec2-user
+  EOF
 
   tags = {
-    Name = "ubuntu-instance"
+    Name = "amazon-instance"
   }
 }
 
