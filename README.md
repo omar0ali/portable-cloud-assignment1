@@ -67,25 +67,64 @@ export DBPORT=3306
 export DBUSER=root
 export DATABASE=employees
 export DBPWD=pw
-export APP_COLOR=blue
+export APP_COLOR1=blue
+export APP_COLOR2=pink
+export APP_COLOR3=lime
 ```
 
 >[!NOTE]
 >This can be added into the `.bashrc` file to skip adding them every time running a new shell.
-
 ### Building the images from a docker file
+
+Building mysql database image.
+
+```dockerfile
+FROM mysql:8.0
+
+COPY ./mysql.sql /tmp
+
+CMD [ "mysqld", "--init-file=/tmp/mysql.sql" ]
+```
 
 ```bash
 docker build -t my_db -f ./src/dockerfiles/mysql/Dockerfile .
 ```
 
+Building web application image.
+
+```dockerfile
+FROM ubuntu:20.04
+RUN apt-get update -y
+COPY . /app
+WORKDIR /app
+RUN set -xe \
+    && apt-get update -y \
+    && apt-get install -y python3-pip \
+    && apt-get install -y mysql-client 
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+EXPOSE 8080
+ENTRYPOINT [ "python3" ]
+CMD [ "app.py" ]
+```
+
 ```bash
 docker build -t my_web -f ./src/dockerfiles/web_server/Dockerfile .
 ```
-
 ### Running Containers
+
+Running the database container first.
 
 ```bash
 docker run -d -e MYSQL_ROOT_PASSWORD=pw  my_db
 ```
 
+Then will run the other containers all the 3 webapps.
+
+```bash
+docker run -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE my_app
+
+docker run -p 8082:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE my_app
+
+docker run -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
+```
