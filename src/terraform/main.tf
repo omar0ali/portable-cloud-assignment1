@@ -98,11 +98,12 @@ resource "aws_instance" "web" {
 
   user_data = <<-EOF
     #!/bin/bash
-    sudo yum update -y
-    sudo yum install -y docker
+    sudo apt update -y && sudo apt upgrade -y
+    sudo apt install -y docker.io
     sudo systemctl start docker
     sudo systemctl enable docker
-    sudo usermod -aG docker ec2-user
+    sudo usermod -aG docker ubuntu
+    newgrp docker
   EOF
 
   tags = {

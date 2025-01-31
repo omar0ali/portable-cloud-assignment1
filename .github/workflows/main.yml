@@ -83,8 +83,8 @@ jobs:
         cd src/terraform
         echo "::set-output name=public_ip::$(terraform output -raw ec2_public_ip)"
 
-    - name: Pause for 20 seconds to ensure environment readiness
-      run: sleep 20
+    - name: Pause for 120 seconds to ensure docker and other tools installed...
+      run: sleep 120
 
     - name: Get ECR Details
       id: ecr_details
