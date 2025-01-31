@@ -56,7 +56,7 @@ Within that EC2 Instance will have a docker host and running 4 containers.
 Lets create a new network in docker using bridge mode.
 
 ```bash
-docker network create -d bridge
+docker network create --driver bridge application
 ```
 
 Lets set the environment variables
