@@ -1,0 +1,120 @@
+name: Deploy to ECR and deploy an EC2 instance.
+
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build Images and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Login to Amazon for ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        AWS_REGION: us-east-1
+
+    - name: Build, test, tag, and push mysql image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: clo835-assignment1/mysql
+        IMAGE_TAG: v0.1
+      run: |
+        cd src/dockerfile/mysql/
+        ls -ltra
+        # Docker build
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    
+    - name: Build, test, tag, and push web_server image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: clo835-assignment1/web_server
+        IMAGE_TAG: v0.1
+      run: |
+        cd src/dockerfile/web_server/
+        ls -ltra
+        # Docker build
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init
+      run: |
+        cd src/terraform
+        terraform init
+        terraform validate  # Optional: To validate your terraform configuration
+
+    - name: Terraform Apply
+      run: |
+        cd src/terraform
+        terraform apply -auto-approve
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        AWS_REGION: us-east-1
+        
+    - name: Get EC2 Public IP
+      id: ec2_ip
+      run: echo "::set-output name=public_ip::$(terraform output -raw ec2_public_ip)"
+
+    - name: Get ECR Details
+      id: ecr_details
+      run: |
+        export AWS_ACCOUNT_ID=$(terraform output -raw aws_account_id)
+        export ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
+        export REGION="us-east-1"
+        echo "::set-output name=ecr_registry::$ECR_REGISTRY"
+        echo "::set-output name=region::$REGION"
+
+    - name: Deploy Docker Containers on EC2
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ steps.ec2_ip.outputs.public_ip }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        script: |
+          # Login to AWS ECR using dynamic ECR registry and region
+          aws ecr get-login-password --region ${{ steps.ecr_details.outputs.region }} | sudo docker login --username AWS --password-stdin ${{ steps.ecr_details.outputs.ecr_registry }}
+
+          # Create Network
+          docker network create --driver bridge application
+
+          # Set variables
+          export DBHOST=172.18.0.2
+          export DBPORT=3306
+          export DBUSER=root
+          export DATABASE=employees
+          export DBPWD=pw
+          export APP_COLOR1=blue
+          export APP_COLOR2=pink
+          export APP_COLOR3=lime
+          
+
+          # Pull MySQL image from ECR
+          sudo docker pull ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/mysql:v0.1
+
+          # Pull Web Server image from ECR
+          sudo docker pull ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
+
+          # Run MySQL
+          sudo docker run -d --name my_db ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/mysql:v0.1
+
+          # Run Web Server
+          docker run --name blue --network application -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
+          docker run --name pink --network application -p 8082:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
+          docker run --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
