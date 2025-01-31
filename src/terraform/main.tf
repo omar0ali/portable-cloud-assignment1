@@ -85,7 +85,7 @@ resource "aws_security_group" "ec2_sg" {
 # Key Pair
 resource "aws_key_pair" "key" {
   key_name   = "ec2-key"
-  public_key = file("~/.ssh/ec2key.pub")
+  public_key = file("ec2key.pub")
 }
 
 # EC2 
