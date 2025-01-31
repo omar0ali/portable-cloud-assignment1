@@ -88,9 +88,18 @@ resource "aws_key_pair" "key" {
   public_key = file("ec2key.pub")
 }
 
+data "aws_ami" "latest_amazon_linux" {
+  owners      = ["amazon"]
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+}
+
 # EC2 
 resource "aws_instance" "web" {
-  ami             = "ami-0dba2cb6798deb6d8"
+  ami             = data.aws_ami.latest_amazon_linux.id
   instance_type   = "t2.micro"
   subnet_id       = aws_subnet.subnet.id
   key_name        = aws_key_pair.key.key_name
@@ -98,11 +107,11 @@ resource "aws_instance" "web" {
 
   user_data = <<-EOF
     #!/bin/bash
-    sudo apt update -y && sudo apt upgrade -y
-    sudo apt install -y docker.io
+    sudo yum update -y
+    sudo yum install -y docker
     sudo systemctl start docker
     sudo systemctl enable docker
-    sudo usermod -aG docker ubuntu
+    sudo usermod -aG docker ec2-user
     newgrp docker
   EOF
 
