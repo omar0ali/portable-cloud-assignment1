@@ -108,3 +108,18 @@ resource "aws_instance" "web" {
   }
 }
 
+# This will be used in github actions
+output "ec2_public_ip" {
+  description = "public IP - EC2 instance"
+  value       = aws_instance.web.public_ip
+}
+
+output "aws_account_id" {
+  description = "AWS Account ID"
+  value       = data.aws_caller_identity.current.account_id
+}
+
+output "region" {
+  description = "region"
+  value       = "us-east-1"
+}
