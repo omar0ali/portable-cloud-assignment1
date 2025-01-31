@@ -87,7 +87,7 @@ CMD [ "mysqld", "--init-file=/tmp/mysql.sql" ]
 ```
 
 ```bash
-docker build -t my_db -f ./src/dockerfiles/mysql/Dockerfile .
+docker build -t my_db -f ./src/dockerfiles/mysql/Dockerfile ./src/dockerfiles/mysql/
 ```
 
 Building web application image.
@@ -109,7 +109,7 @@ CMD [ "app.py" ]
 ```
 
 ```bash
-docker build -t my_web -f ./src/dockerfiles/web_server/Dockerfile .
+docker build -t my_web -f ./src/dockerfiles/web_server/Dockerfile ./src/dockerfiles/web_server/
 ```
 ### Running Containers
 
