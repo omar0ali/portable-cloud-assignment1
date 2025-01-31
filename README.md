@@ -116,7 +116,7 @@ docker build -t web_app -f ./src/dockerfiles/web_server/Dockerfile ./src/dockerf
 Running the database container first.
 
 ```bash
-docker run -d -e MYSQL_ROOT_PASSWORD=pw  my_db
+docker run -d -e MYSQL_ROOT_PASSWORD=pw my_db
 ```
 
 Then will run the other containers all the 3 webapps.
