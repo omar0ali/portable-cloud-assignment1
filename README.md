@@ -122,9 +122,17 @@ docker run -d -e MYSQL_ROOT_PASSWORD=pw  my_db
 Then will run the other containers all the 3 webapps.
 
 ```bash
-docker run --network application -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE my_app
+docker run --name blue --network application -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE my_app
 
-docker run --network application -p 8082:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE my_app
+docker run --name pink --network application -p 8082:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE my_app
 
-docker run --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
+docker run --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
 ```
+
+### Build and publish docker image to Aamazon ECR
+
+>[!NOTE]
+Requirements before using AWS CLI:
+Ensure that running the learner lab. Copying and updating the credentails file at `$HOME/.aws/credentials`.
+
+
