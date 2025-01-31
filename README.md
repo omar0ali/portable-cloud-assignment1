@@ -136,6 +136,7 @@ docker run --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e 
 2. `AWS_ACCESS_KEY_ID`
 3. `AWS_SECRET_ACCESS_KEY`
 4. `AWS_SESSION_TOKEN`
+5. `EC2_SSH_PASSPHRASE` - The key has a passphrase, this is optional.
 
 >[!NOTE]
 >You can check the current action that will run only when to push to the main or make a pull request. [main.yml](https://github.com/omar0ali/portable-cloud-assignment1/blob/feat/action/.github/workflows/main.yml)
