@@ -70,11 +70,14 @@ jobs:
         
     - name: Get EC2 Public IP
       id: ec2_ip
-      run: echo "::set-output name=public_ip::$(terraform output -raw ec2_public_ip)"
+      run: |
+        cd src/terraform
+        echo "::set-output name=public_ip::$(terraform output -raw ec2_public_ip)"
 
     - name: Get ECR Details
       id: ecr_details
       run: |
+        cd src/terraform
         export AWS_ACCOUNT_ID=$(terraform output -raw aws_account_id)
         export ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
         export REGION="us-east-1"
@@ -112,7 +115,7 @@ jobs:
           sudo docker pull ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
 
           # Run MySQL
-          sudo docker run -d --name my_db ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/mysql:v0.1
+          sudo docker run -d --name my_db --network application ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/mysql:v0.1
 
           # Run Web Server
           docker run --name blue --network application -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
