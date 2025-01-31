@@ -129,10 +129,5 @@ docker run --name pink --network application -p 8082:8080  -e DBHOST=$DBHOST -e 
 docker run --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
 ```
 
-### Build and publish docker image to Aamazon ECR
-
->[!NOTE]
-Requirements before using AWS CLI:
-Ensure that running the learner lab. Copying and updating the credentails file at `$HOME/.aws/credentials`.
-
+### Github Action - Build and push images & Deploy EC2 using Terraform
 
