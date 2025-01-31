@@ -109,7 +109,7 @@ CMD [ "app.py" ]
 ```
 
 ```bash
-docker build -t my_web -f ./src/dockerfiles/web_server/Dockerfile ./src/dockerfiles/web_server/
+docker build -t web_app -f ./src/dockerfiles/web_server/Dockerfile ./src/dockerfiles/web_server/
 ```
 ### Running Containers
 
