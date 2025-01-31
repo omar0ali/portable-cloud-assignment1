@@ -129,5 +129,14 @@ docker run --name pink --network application -p 8082:8080  -e DBHOST=$DBHOST -e 
 docker run --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
 ```
 
-### Github Action - Build and push images & Deploy EC2 using Terraform
+### GitHub Action - Build and push images & Deploy EC2 using TerraForm
+
+##### Ensure the following setup in the GitHub Actions Secrets
+1. `EC2_SSH_PRIVATE_KEY` - This is used to ssh to the EC2 instance and prepare and run the containers.
+2. `AWS_ACCESS_KEY_ID`
+3. `AWS_SECRET_ACCESS_KEY`
+4. `AWS_SESSION_TOKEN`
+
+>[!NOTE]
+>You can check the current action that will run only when to push to the main or make a pull request. [main.yml](https://github.com/omar0ali/portable-cloud-assignment1/blob/feat/action/.github/workflows/main.yml)
 

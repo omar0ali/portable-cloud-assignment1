@@ -74,6 +74,9 @@ jobs:
         cd src/terraform
         echo "::set-output name=public_ip::$(terraform output -raw ec2_public_ip)"
 
+    - name: Pause for 10 seconds to ensure environment readiness
+      run: sleep 10
+
     - name: Get ECR Details
       id: ecr_details
       run: |
@@ -92,7 +95,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
         script: |
           # Login to AWS ECR using dynamic ECR registry and region
-          aws ecr get-login-password --region ${{ steps.ecr_details.outputs.region }} | sudo docker login --username AWS --password-stdin ${{ steps.ecr_details.outputs.ecr_registry }}
+          aws ecr get-login-password --region ${{ steps.ecr_details.outputs.region }} | sudo docker login -u AWS --password-stdin ${{ steps.ecr_details.outputs.ecr_registry }}
 
           # Create Network
           docker network create --driver bridge application
