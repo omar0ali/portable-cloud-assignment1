@@ -112,7 +112,7 @@ jobs:
 
 
           # Login to AWS ECR using dynamic ECR registry and region
-          aws ecr get-login-password --region ${{ steps.ecr_details.outputs.region }} | sudo docker login -u AWS --password-stdin ${{ steps.ecr_details.outputs.ecr_registry }}
+          aws ecr get-login-password --region ${{ steps.ecr_details.outputs.region }} | docker login -u AWS --password-stdin ${{ steps.ecr_details.outputs.ecr_registry }}
 
           # Create Network
           docker network create --driver bridge application
