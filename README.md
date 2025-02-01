@@ -109,14 +109,14 @@ CMD [ "app.py" ]
 ```
 
 ```bash
-docker build -t web_app -f ./src/dockerfiles/web_server/Dockerfile ./src/dockerfiles/web_server/
+docker build -t my_app -f ./src/dockerfiles/web_server/Dockerfile ./src/dockerfiles/web_server/
 ```
 ### Running Containers
 
 Running the database container first.
 
 ```bash
-docker run -d -e MYSQL_ROOT_PASSWORD=pw my_db
+docker run -d --network application -e MYSQL_ROOT_PASSWORD=$DBPWD my_db
 ```
 
 Then will run the other containers all the 3 webapps.
