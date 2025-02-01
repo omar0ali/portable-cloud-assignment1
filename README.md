@@ -1,4 +1,3 @@
-Omar BaGunaid
 ## Assignment Implementation Overview
 The objective is to have an EC2 instance running with a total of four containers 3 of which will be web_applications and 1 of them will be a database using mysql which these running applications will need to use. All of these containers must be running in a custom network bridge mode.
 #### Here is a breakdown of what will do:
@@ -140,3 +139,4 @@ docker run -d --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST 
 >[!NOTE]
 >You can check the current action that will run only when to push to the main or make a pull request. [main.yml](https://github.com/omar0ali/portable-cloud-assignment1/blob/feat/action/.github/workflows/main.yml)
 
+First, the workflow ensures the creation of AWS ECR private repositories for both MySQL and the web server. Next, it builds the Docker images and pushes them to the repository. After that, Terraform is used to deploy an EC2 instance, setting up the necessary cloud infrastructure and ensuring that Docker and other required tools are installed. Finally, the workflow connects to the EC2 instance via SSH and runs all the containers simultaneously.
