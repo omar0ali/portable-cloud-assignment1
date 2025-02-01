@@ -104,8 +104,7 @@ RUN set -xe \
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 EXPOSE 8080
-ENTRYPOINT [ "python3" ]
-CMD [ "app.py" ]
+CMD [ "python3", "app.py" ]
 ```
 
 ```bash
@@ -122,11 +121,11 @@ docker run -d --network application -e MYSQL_ROOT_PASSWORD=$DBPWD my_db
 Then will run the other containers all the 3 webapps.
 
 ```bash
-docker run --name blue --network application -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE my_app
+docker run -d --name blue --network application -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE my_app
 
-docker run --name pink --network application -p 8082:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE my_app
+docker run -d --name pink --network application -p 8082:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE my_app
 
-docker run --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
+docker run -d --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
 ```
 
 ### GitHub Action - Build and push images & Deploy EC2 using TerraForm

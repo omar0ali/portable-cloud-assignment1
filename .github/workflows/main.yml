@@ -137,9 +137,17 @@ jobs:
           docker run -d --name my_db --network application -e MYSQL_ROOT_PASSWORD=$DBPWD ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/mysql:v0.1
           
           sleep 10
-
           # Run Web Server containers
-          docker run -dit --name blue --network application -p 8081:8080 -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
-          docker run -dit --name pink --network application -p 8082:8080 -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
-          docker run -dit --name lime --network application -p 8083:8080 -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
+          docker run -d --name blue --network application -p 8081:8080 -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
+          sleep 2
+          docker run -d --name pink --network application -p 8082:8080 -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
+          sleep 2
+          docker run -d --name lime --network application -p 8083:8080 -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE ${{ steps.ecr_details.outputs.ecr_registry }}/clo835-assignment1/web_server:v0.1
 
+          sleep 2
+
+          docker ps -a
+          docker logs my_db
+          docker logs blue
+          docker logs pink
+          docker logs lime
