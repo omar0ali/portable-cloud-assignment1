@@ -140,3 +140,9 @@ docker run -d --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST 
 >You can check the current action that will run only when to push to the main or make a pull request. [main.yml](https://github.com/omar0ali/portable-cloud-assignment1/blob/feat/action/.github/workflows/main.yml)
 
 First, the workflow ensures the creation of AWS ECR private repositories for both MySQL and the web server. Next, it builds the Docker images and pushes them to the repository. After that, Terraform is used to deploy an EC2 instance, setting up the necessary cloud infrastructure and ensuring that Docker and other required tools are installed. Finally, the workflow connects to the EC2 instance via SSH and runs all the containers simultaneously.
+
+#### Additional Feature
+[ ] - Deploy ALB with TerraForm and expose the applications via different paths in the ALB listener
+- Instead of using a different port number for each web application, we can assign a specific path to each container. By using an Application Load Balancer, we can achieve this.
+
+Any additional features, will be implemented at a later date, for learning purposes.
