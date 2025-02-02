@@ -13,3 +13,5 @@ __pycache__/
 .env
 *.env
 
+# hiding the key
+ec2key

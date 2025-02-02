@@ -2,6 +2,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+data "aws_caller_identity" "current" {}
+
 # VPC
 resource "aws_vpc" "vpc" {
   cidr_block           = "10.0.0.0/16"
@@ -83,12 +85,21 @@ resource "aws_security_group" "ec2_sg" {
 # Key Pair
 resource "aws_key_pair" "key" {
   key_name   = "ec2-key"
-  public_key = file("~/.ssh/ec2key.pub")
+  public_key = file("ec2key.pub")
+}
+
+data "aws_ami" "latest_amazon_linux" {
+  owners      = ["amazon"]
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
 }
 
 # EC2 
 resource "aws_instance" "web" {
-  ami             = "ami-0dba2cb6798deb6d8"
+  ami             = data.aws_ami.latest_amazon_linux.id
   instance_type   = "t2.micro"
   subnet_id       = aws_subnet.subnet.id
   key_name        = aws_key_pair.key.key_name
@@ -101,6 +112,7 @@ resource "aws_instance" "web" {
     sudo systemctl start docker
     sudo systemctl enable docker
     sudo usermod -aG docker ec2-user
+    newgrp docker
   EOF
 
   tags = {
@@ -108,3 +120,18 @@ resource "aws_instance" "web" {
   }
 }
 
+# This will be used in github actions
+output "ec2_public_ip" {
+  description = "public IP - EC2 instance"
+  value       = aws_instance.web.public_ip
+}
+
+output "aws_account_id" {
+  description = "AWS Account ID"
+  value       = data.aws_caller_identity.current.account_id
+}
+
+output "region" {
+  description = "region"
+  value       = "us-east-1"
+}

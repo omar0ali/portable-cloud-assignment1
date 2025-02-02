@@ -1,4 +1,3 @@
-Omar BaGunaid
 ## Assignment Implementation Overview
 The objective is to have an EC2 instance running with a total of four containers 3 of which will be web_applications and 1 of them will be a database using mysql which these running applications will need to use. All of these containers must be running in a custom network bridge mode.
 #### Here is a breakdown of what will do:
@@ -104,30 +103,47 @@ RUN set -xe \
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 EXPOSE 8080
-ENTRYPOINT [ "python3" ]
-CMD [ "app.py" ]
+CMD [ "python3", "app.py" ]
 ```
 
 ```bash
-docker build -t web_app -f ./src/dockerfiles/web_server/Dockerfile ./src/dockerfiles/web_server/
+docker build -t my_app -f ./src/dockerfiles/web_server/Dockerfile ./src/dockerfiles/web_server/
 ```
 ### Running Containers
 
 Running the database container first.
 
 ```bash
-docker run -d -e MYSQL_ROOT_PASSWORD=pw  my_db
+docker run -d --network application -e MYSQL_ROOT_PASSWORD=$DBPWD my_db
 ```
 
 Then will run the other containers all the 3 webapps.
 
 ```bash
-docker run --name blue --network application -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE my_app
+docker run -d --name blue --network application -p 8081:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR1 -e DATABASE=$DATABASE my_app
 
-docker run --name pink --network application -p 8082:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE my_app
+docker run -d --name pink --network application -p 8082:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR2 -e DATABASE=$DATABASE my_app
 
-docker run --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
+docker run -d --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e  DBUSER=$DBUSER -e DBPWD=$DBPWD -e APP_COLOR=$APP_COLOR3 -e DATABASE=$DATABASE my_app
 ```
 
-### Github Action - Build and push images & Deploy EC2 using Terraform
+### GitHub Action - Build and push images & Deploy EC2 using TerraForm
 
+##### Ensure the following setup in the GitHub Actions Secrets
+1. `EC2_SSH_PRIVATE_KEY` - This is used to ssh to the EC2 instance and prepare and run the containers.
+2. `AWS_ACCESS_KEY_ID`
+3. `AWS_SECRET_ACCESS_KEY`
+4. `AWS_SESSION_TOKEN`
+5. `EC2_SSH_PASSPHRASE` - The key has a passphrase, this is optional.
+
+>[!NOTE]
+>You can check the current action that will run only when to push to the main or make a pull request. [main.yml](https://github.com/omar0ali/portable-cloud-assignment1/blob/feat/action/.github/workflows/main.yml)
+
+First, the workflow ensures the creation of AWS ECR private repositories for both MySQL and the web server. Next, it builds the Docker images and pushes them to the repository. After that, Terraform is used to deploy an EC2 instance, setting up the necessary cloud infrastructure and ensuring that Docker and other required tools are installed. Finally, the workflow connects to the EC2 instance via SSH and runs all the containers simultaneously.
+
+#### The 
+#### Additional Feature
+[ ] - Deploy ALB with TerraForm and expose the applications via different paths in the ALB listener
+- Instead of using a different port number for each web application, we can assign a specific path to each container. By using an Application Load Balancer, we can achieve this.
+
+Any additional features, will be implemented at a later date, for learning purposes.
