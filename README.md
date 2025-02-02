@@ -141,9 +141,11 @@ docker run -d --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST 
 
 First, the workflow ensures the creation of AWS ECR private repositories for both MySQL and the web server. Next, it builds the Docker images and pushes them to the repository. After that, Terraform is used to deploy an EC2 instance, setting up the necessary cloud infrastructure and ensuring that Docker and other required tools are installed. Finally, the workflow connects to the EC2 instance via SSH and runs all the containers simultaneously.
 
-#### The 
+#### Reason we can run 3 applications listening on the same port 8080 on a single EC2 instance.  
+
+In terms of what we can do on an EC2 instance using these containers' internals, we can first map their port numbers to route traffic to the EC2 host. Since we are using Linux namespaces, the containers' internal port numbers are not the same as the host's. This is why we can use the same port on all three containers. it only applies within the containers, not on the host. However, host port numbers can only be used once; it is impossible to run two servers or applications using the same host port. One of them will fail to start because the port will be busy.
 #### Additional Feature
-[ ] - Deploy ALB with TerraForm and expose the applications via different paths in the ALB listener
-- Instead of using a different port number for each web application, we can assign a specific path to each container. By using an Application Load Balancer, we can achieve this.
+- [ ] Deploy ALB with TerraForm and expose the applications via different paths in the ALB listener
+	- Instead of using a different port number for each web application, we can assign a specific path to each container. By using an Application Load Balancer, we can achieve this.
 
 Any additional features, will be implemented at a later date, for learning purposes.
