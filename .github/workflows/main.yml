@@ -1,8 +1,6 @@
 name: Build, Test, and Deploy Docker Images to ECR
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -151,3 +149,6 @@ jobs:
           docker logs blue
           docker logs pink
           docker logs lime
+
+          ## Outputing the current public ip address
+          curl ifconfig.me
