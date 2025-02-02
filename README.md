@@ -141,6 +141,7 @@ docker run -d --name lime --network application -p 8083:8080  -e DBHOST=$DBHOST 
 
 First, the workflow ensures the creation of AWS ECR private repositories for both MySQL and the web server. Next, it builds the Docker images and pushes them to the repository. After that, Terraform is used to deploy an EC2 instance, setting up the necessary cloud infrastructure and ensuring that Docker and other required tools are installed. Finally, the workflow connects to the EC2 instance via SSH and runs all the containers simultaneously.
 
+#### The 
 #### Additional Feature
 [ ] - Deploy ALB with TerraForm and expose the applications via different paths in the ALB listener
 - Instead of using a different port number for each web application, we can assign a specific path to each container. By using an Application Load Balancer, we can achieve this.
