@@ -1,5 +1,4 @@
 name: Build, Test, and Deploy Docker Images to ECR
-
 on:
   pull_request:
     branches: [ main ]
